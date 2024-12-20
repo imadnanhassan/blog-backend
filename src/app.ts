@@ -6,7 +6,7 @@ const app: Application = express();
 app.use(express.json());
 
 // applocation routes
-app.use('/api/blogs', userRouter);
+app.use('/api/user', userRouter);
 
 // Simple Routes
 app.get('/', (req: Request, res: Response) => {
