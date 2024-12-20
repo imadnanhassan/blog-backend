@@ -1,18 +1,25 @@
-import { Response } from 'express';
+import mongoose from 'mongoose';
+import { TErrorSources, TGenericErrorResponse } from '../interface/error';
 
-export const handleValidationError = (err: any, res: Response) => {
-  const issues = Object.values(err.errors).map((item: any) => {
-    return {
-      name: item.name,
-      path: item.path,
-      message: item.message,
-    };
-  });
+const handleValidationError = (
+  err: mongoose.Error.ValidationError
+): TGenericErrorResponse => {
+  const errorSources: TErrorSources = Object.values(err.errors).map(
+    (val: mongoose.Error.ValidatorError | mongoose.Error.CastError) => {
+      return {
+        path: val?.path,
+        message: val?.message,
+      };
+    }
+  );
 
-  res.status(400).json({
-    success: false,
-    message: err.message,
-    issues: issues,
-    error: err,
-  });
+  const statusCode = 400;
+
+  return {
+    statusCode,
+    message: 'Validation Error',
+    errorSources,
+  };
 };
+
+export default handleValidationError;
