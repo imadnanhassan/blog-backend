@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
-const catchAsync = (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
+const catchAsync = (fn: RequestHandler) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
+    Promise.resolve(fn(req, res, next)).catch((err) => next(err));
   };
 };
 
