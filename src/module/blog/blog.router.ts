@@ -1,5 +1,4 @@
 import { Router } from 'express';
-
 import {
   createBlogSchema,
   updateBlogSchema,
@@ -19,19 +18,19 @@ blogRouter.post(
   BlogController.createBlog
 );
 blogRouter.patch(
-  '/blogs/:id',
+  '/:id',
   authenticateToken,
   validateRequest(updateBlogSchema),
   BlogController.updateBlog
 );
 blogRouter.delete(
-  '/blogs/:id',
+  '/:id',
   authenticateToken,
   validateRequest(deleteBlogSchema),
   BlogController.deleteBlog
 );
 blogRouter.get(
-  '/blogs',
+  '/',
   validateRequest(getAllBlogsSchema),
   BlogController.getAllBlogs
 );
