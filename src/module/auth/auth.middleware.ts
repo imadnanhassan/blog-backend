@@ -16,15 +16,17 @@ export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  const token = req.headers['authorization']?.split(' ')[1];
+): Promise<void> => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
+    res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
       statusCode: StatusCodes.UNAUTHORIZED,
       message: 'No token provided!',
     });
+    return;
   }
 
   try {
@@ -32,20 +34,23 @@ export const authenticateToken = async (
     const user = await UserModel.findById(decoded.userId);
 
     if (!user) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
+      res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
         statusCode: StatusCodes.UNAUTHORIZED,
         message: 'User not found!',
       });
+
+      return;
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
+     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
       statusCode: StatusCodes.UNAUTHORIZED,
       message: 'Invalid token!',
-    });
+     });
+    return;
   }
 };

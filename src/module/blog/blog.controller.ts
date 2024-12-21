@@ -7,7 +7,7 @@ import { IBlog } from './blog.interface';
 
 const createBlog = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
-    const blogData: IBlog = { ...req.body, author: req.user._id };
+    const blogData: IBlog = { ...req.body};
     const blog = await blogService.createBlog(blogData);
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
@@ -18,7 +18,7 @@ const createBlog = catchAsync(
 );
 
 const updateBlog = catchAsync(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
     const blog = await blogService.updateBlog(id, req.body);
     if (!blog) {
@@ -37,7 +37,7 @@ const updateBlog = catchAsync(
 );
 
 const deleteBlog = catchAsync(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
     const blog = await blogService.deleteBlog(id);
     if (!blog) {

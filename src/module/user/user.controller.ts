@@ -3,7 +3,11 @@ import { StatusCodes } from 'http-status-codes';
 import sendResponse from '../../utils/sendResponse';
 import UserModel from './user.model';
 
-const blockUser = async (req: Request, res: Response, next: NextFunction) => {
+const blockUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { userId } = req.params;
     const user = await UserModel.findByIdAndUpdate(
@@ -13,11 +17,12 @@ const blockUser = async (req: Request, res: Response, next: NextFunction) => {
     );
 
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({
+       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: 'User not found',
         statusCode: StatusCodes.NOT_FOUND,
-      });
+       });
+      return;
     }
 
     sendResponse(res, {
@@ -30,7 +35,7 @@ const blockUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+const updateUser = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
   try {
     const { userId } = req.params;
     const user = await UserModel.findByIdAndUpdate(userId, req.body, {
@@ -38,11 +43,12 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({
+       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: 'User not found',
         statusCode: StatusCodes.NOT_FOUND,
-      });
+       });
+      return;
     }
 
     sendResponse(res, {
@@ -55,7 +61,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default {
+export const UserController = {
   blockUser,
   updateUser,
 };

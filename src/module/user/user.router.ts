@@ -1,28 +1,16 @@
 import { Router } from 'express';
 import { authenticateToken } from '../auth/auth.middleware';
-import requireAdmin from '../../middleware/requireAdmin';
 import { validateRequest } from '../../middleware/validateRequest';
 import { blockUserSchema, updateUserSchema } from './user.validation';
-import userController from './user.controller';
+import { UserController } from './user.controller';
 
 
 const userRouter = Router();
 
 // Admin actions
-userRouter.patch(
-  '/users/:userId/block',
-  authenticateToken,
-  requireAdmin,
-  validateRequest(blockUserSchema),
-  userController.blockUser
-);
+userRouter.patch('/users/:userId/block',authenticateToken,validateRequest(blockUserSchema),UserController.blockUser);
 
 // User actions
-userRouter.patch(
-  '/users/:userId',
-  authenticateToken,
-  validateRequest(updateUserSchema),
-  userController.updateUser
-);
+userRouter.patch('/users/:userId', validateRequest(updateUserSchema));
 
 export default userRouter;

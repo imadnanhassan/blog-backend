@@ -9,19 +9,19 @@ const createBlog = async (blogData: IBlog): Promise<IBlog> => {
 const updateBlog = async (
   blogId: string,
   blogData: Partial<IBlog>
-): Promise<IBlog | null> => {
+): Promise<any | null> => {
   const blog = await BlogModel.findByIdAndUpdate(blogId, blogData, {
     new: true,
   }).populate('author', 'name email');
   return blog;
 };
 
-const deleteBlog = async (blogId: string): Promise<IBlog | null> => {
+const deleteBlog = async (blogId: string): Promise<any | null> => {
   const blog = await BlogModel.findByIdAndDelete(blogId);
   return blog;
 };
 
-const getAllBlogs = async (filters: any): Promise<IBlog[]> => {
+const getAllBlogs = async (filters: any): Promise<any[]> => {
   const blogs = await BlogModel.find(filters).populate('author', 'name email');
   return blogs;
 };
