@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config';
-import { IUser } from './auth.interface';
+import { IUser } from '../user/user.interface';
 
 export const generateAccessToken = (user: IUser) => {
   return jwt.sign(

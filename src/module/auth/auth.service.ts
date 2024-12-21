@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { IUser } from './auth.interface';
-import { UserModel } from '../user/user.model';
+import { IUser } from '../user/user.interface';
+import UserModel from '../user/user.model';
 import { StatusCodes } from 'http-status-codes';
 import {
   generateAccessToken,
@@ -44,6 +44,7 @@ const loginUser = async (payload: {
       success: false,
       message: 'Invalid email or password',
       statusCode: StatusCodes.UNAUTHORIZED,
+      error: { details: 'The email address is not registered' },
     };
   }
 
@@ -52,6 +53,7 @@ const loginUser = async (payload: {
       success: false,
       message: 'User is blocked. Contact the administrator.',
       statusCode: StatusCodes.FORBIDDEN,
+      error: { details: 'User account is blocked' },
     };
   }
 
@@ -62,6 +64,7 @@ const loginUser = async (payload: {
       success: false,
       message: 'Invalid email or password',
       statusCode: StatusCodes.UNAUTHORIZED,
+      error: { details: 'The password is incorrect' },
     };
   }
 
@@ -73,6 +76,7 @@ const loginUser = async (payload: {
 
   return { accessToken, refreshToken };
 };
+
 
 const refreshAccessToken = async (refreshToken: string): Promise<string> => {
   const decoded = verifyToken(refreshToken) as jwt.JwtPayload & {

@@ -1,9 +1,6 @@
-export interface IUser {
-  _id?: string;
-  name: string;
-  email: string;
-  password: string;
-  isBlocked?: boolean;
-  role?: string;
-  refreshToken?: string;
+import { IUser } from '../user/user.interface';
+
+export interface IAuth extends IUser {
+  accessToken: string;
+  refreshToken: string;
 }

@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { authService } from './auth.service';
-import { IUser } from './auth.interface';
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-
+import { IUser } from '../user/user.interface';
 
 const register = catchAsync(async (req: Request, res: Response) => {
   const user: IUser = req.body;
@@ -36,7 +35,7 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export default {
+export const AuthController = {
   register,
   login,
   refresh,
