@@ -1,25 +1,18 @@
+// auth.validation.ts
+
 import { z } from 'zod';
 
-const loginValidationSchema = z.object({
-  body: z.object({
-    email: z
-      .string({
-        required_error: 'Email must be provided and must be a string',
-      })
-      .email(),
-    password: z.string({ required_error: 'Password is required' }),
-  }),
+export const registerSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const refreshTokenValidationSchema = z.object({
-  cookies: z.object({
-    refreshToken: z.string({
-      required_error: 'Refresh token is required!',
-    }),
-  }),
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-export const AuthValidation = {
-  loginValidationSchema,
-  refreshTokenValidationSchema,
-};
+export const refreshSchema = z.object({
+  refreshToken: z.string(),
+});

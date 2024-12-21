@@ -1,26 +1,20 @@
-// auth.routes.ts
-
-import { authController } from './auth.controller';
-import { AuthValidation } from './auth.validation';
-import validateRequest from '../../middlewares/validateRequest';
 import { Router } from 'express';
+import { loginSchema, refreshSchema, registerSchema } from './auth.validation';
+import { validateRequest } from '../../middlewares/validateRequest';
+import authController from './auth.controller';
 
 const authRoutes = Router();
 
 authRoutes.post(
   '/register',
-  validateRequest(AuthValidation.loginValidationSchema),
-  authController.registerUser
+  validateRequest(registerSchema),
+  authController.register
 );
+authRoutes.post('/login', validateRequest(loginSchema), authController.login);
 authRoutes.post(
-  '/login',
-  validateRequest(AuthValidation.loginValidationSchema),
-  authController.loginUser
-);
-authRoutes.post(
-  '/refresh-token',
-  validateRequest(AuthValidation.refreshTokenValidationSchema),
-  authController.refreshAccessToken
+  '/refresh',
+  validateRequest(refreshSchema),
+  authController.refresh
 );
 
 export default authRoutes;

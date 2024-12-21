@@ -1,11 +1,13 @@
-// auth.service.ts
-
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { IUser } from './auth.interface';
 import { UserModel } from '../user/user.model';
-import config from '../../config';
 import { StatusCodes } from 'http-status-codes';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyToken,
+} from './auth.utils';
 
 interface LoginResponse {
   accessToken: string;
@@ -31,63 +33,25 @@ const registerUser = async (payload: IUser): Promise<IUser> => {
   return user;
 };
 
-// const loginUser = async (payload: {
-//   email: string;
-//   password: string;
-// }): Promise<LoginResponse> => {
-//   // Find the user by email
-//   const user = await UserModel.findOne({ email: payload.email });
-//   if (!user || !(await bcrypt.compare(payload.password, user.password))) {
-//     throw new Error('Invalid email or password');
-//   }
-
-//   console.log('Payload:', payload);
-//   console.log('User Found:', user);
-
-//   // Generate tokens
-//   const accessToken = jwt.sign(
-//     { userId: user._id, role: user.role },
-//     config.secret_key as string,
-//     {
-//       expiresIn: '10d',
-//     }
-//   );
-//   const refreshToken = jwt.sign(
-//     { userId: user._id, role: user.role },
-//     config.secret_key as string,
-//     {
-//       expiresIn: '7d',
-//     }
-//   );
-
-//   // Save refresh token to the user document
-//   user.refreshToken = refreshToken;
-//   await user.save();
-
-//   return { accessToken, refreshToken };
-// };
-
-
 const loginUser = async (payload: {
   email: string;
   password: string;
-}): Promise<{ accessToken: string; refreshToken: string }> => {
+}): Promise<LoginResponse> => {
   const user = await UserModel.findOne({ email: payload.email });
 
   if (!user) {
     throw {
       success: false,
       message: 'Invalid email or password',
-      statusCode: 401,
+      statusCode: StatusCodes.UNAUTHORIZED,
     };
   }
 
-  // Check if the user is blocked
   if (user.isBlocked) {
     throw {
       success: false,
       message: 'User is blocked. Contact the administrator.',
-      statusCode: 403,
+      statusCode: StatusCodes.FORBIDDEN,
     };
   }
 
@@ -97,48 +61,34 @@ const loginUser = async (payload: {
     throw {
       success: false,
       message: 'Invalid email or password',
-      statusCode: 401,
+      statusCode: StatusCodes.UNAUTHORIZED,
     };
   }
 
-  // Generate tokens
-  const accessToken = jwt.sign(
-    { userId: user._id, role: user.role },
-    config.secret_key as string,
-    { expiresIn: '10d' }
-  );
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
 
-  const refreshToken = jwt.sign(
-    { userId: user._id, role: user.role },
-    config.secret_key as string,
-    { expiresIn: '7d' }
-  );
-
-  // Save refreshToken in the database
   user.refreshToken = refreshToken;
   await user.save();
 
   return { accessToken, refreshToken };
 };
 
-
-
-
 const refreshAccessToken = async (refreshToken: string): Promise<string> => {
-  const decoded = jwt.verify(refreshToken, config.secret_key as string);
+  const decoded = verifyToken(refreshToken) as jwt.JwtPayload & {
+    userId: string;
+  };
   const user = await UserModel.findOne({ refreshToken });
 
   if (!user) {
-    throw new Error('Invalid refresh token');
+    throw {
+      success: false,
+      message: 'Invalid refresh token',
+      statusCode: StatusCodes.UNAUTHORIZED,
+    };
   }
 
-  const accessToken = jwt.sign(
-    { userId: user._id, role: user.role },
-    config.secret_key as string,
-    { expiresIn: '10d' }
-  );
-
-  return accessToken;
+  return generateAccessToken(user);
 };
 
 export const authService = {

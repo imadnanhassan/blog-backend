@@ -1,15 +1,27 @@
+import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
-import catchAsync from '../utils/catchAsync';
-import { NextFunction, Request, Response } from 'express';
 
-const validateRequest = (schema: AnyZodObject) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    await schema.parseAsync({
-      body: req.body,
-    });
-
-    next();
-  });
-};
-
-export default validateRequest;
+export const validateRequest =
+  (schema: AnyZodObject) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      schema.parse(req.body);
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({
+          status: false,
+          statusCode: 400,
+          message: 'Validation error',
+          data: (error as any).errors ? (error as any).errors : error.message,
+        });
+      } else {
+        res.status(400).json({
+          status: false,
+          statusCode: 400,
+          message: 'Validation error',
+          data: 'Unknown error',
+        });
+      }
+    }
+  };

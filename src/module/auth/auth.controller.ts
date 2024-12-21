@@ -1,45 +1,43 @@
-// auth.controller.ts
-
 import { Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
 import { authService } from './auth.service';
+import { IUser } from './auth.interface';
+import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
 
-const registerUser = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const user = await authService.registerUser(payload);
 
-  res.status(StatusCodes.CREATED).json({
+const register = catchAsync(async (req: Request, res: Response) => {
+  const user: IUser = req.body;
+  const newUser = await authService.registerUser(user);
+  sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     message: 'User registered successfully',
-    data: user,
+    data: newUser,
   });
 });
 
-const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const tokens = await authService.loginUser(payload);
-
-  res.status(StatusCodes.OK).json({
+const login = catchAsync(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const tokens = await authService.loginUser({ email, password });
+  sendResponse(res, {
     statusCode: StatusCodes.OK,
-    message: 'User logged in successfully',
+    message: 'Login successful',
     data: tokens,
   });
 });
 
-const refreshAccessToken = catchAsync(async (req: Request, res: Response) => {
+const refresh = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
-  const tokens = await authService.refreshAccessToken(refreshToken);
-
-  res.status(StatusCodes.OK).json({
+  const accessToken = await authService.refreshAccessToken(refreshToken);
+  sendResponse(res, {
     statusCode: StatusCodes.OK,
-    message: 'Access token refreshed successfully',
-    data: tokens,
+    message: 'Access token refreshed',
+    data: { accessToken },
   });
 });
 
-export const authController = {
-  registerUser,
-  loginUser,
-  refreshAccessToken,
+export default {
+  register,
+  login,
+  refresh,
 };

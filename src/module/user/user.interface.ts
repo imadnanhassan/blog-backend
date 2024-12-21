@@ -1,8 +1,7 @@
 import { USER_ROLE } from './user.constants';
 
 export interface IUser {
-  isModified(arg0: string): unknown;
-  id: number;
+  _id: any;
   name: string;
   email: string;
   password: string;

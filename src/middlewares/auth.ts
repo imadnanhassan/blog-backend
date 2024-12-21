@@ -3,6 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { IUser } from '../module/user/user.interface';
 import { verifyToken } from '../module/auth/auth.utils';
 import { UserModel } from '../module/user/user.model';
+import { JwtPayload } from 'jsonwebtoken';
+import TokenPayload from '../jwt/auth.middleware';
+
 
 declare global {
   namespace Express {
@@ -11,6 +14,7 @@ declare global {
     }
   }
 }
+
 
 // Middleware to verify JWT token
 const authenticateToken = async (
@@ -25,9 +29,8 @@ const authenticateToken = async (
       message: 'No token provided!',
     });
   }
-
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifyToken(token) as TokenPayload;
     const user = await UserModel.findById(decoded.userId);
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -35,8 +38,7 @@ const authenticateToken = async (
         message: 'User not found!',
       });
     }
-
-    req.user = user; // Attach user object to request
+    req.user = user;
     next();
   } catch (error) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
