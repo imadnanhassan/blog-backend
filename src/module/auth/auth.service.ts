@@ -1,21 +1,21 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { IUser } from '../user/user.interface';
-import UserModel from '../user/user.model';
 import { StatusCodes } from 'http-status-codes';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyToken,
 } from './auth.utils';
+import { TUser } from '../user/user.interface';
+import { User } from '../user/user.model';
 
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
 }
 
-const registerUser = async (payload: IUser): Promise<IUser> => {
-  const existingUser = await UserModel.findOne({ email: payload.email });
+const registerUser = async (payload: TUser): Promise<TUser> => {
+  const existingUser = await User.findOne({ email: payload.email });
   if (existingUser) {
     throw {
       success: false,
@@ -28,7 +28,7 @@ const registerUser = async (payload: IUser): Promise<IUser> => {
   }
 
   const hashedPassword = await bcrypt.hash(payload.password, 10);
-  const user = await UserModel.create({ ...payload, password: hashedPassword });
+  const user = await User.create({ ...payload, password: hashedPassword });
 
   return user;
 };
@@ -37,7 +37,7 @@ const loginUser = async (payload: {
   email: string;
   password: string;
 }): Promise<LoginResponse> => {
-  const user = await UserModel.findOne({ email: payload.email });
+  const user = await User.findOne({ email: payload.email });
 
   if (!user) {
     throw {
@@ -77,12 +77,11 @@ const loginUser = async (payload: {
   return { accessToken, refreshToken };
 };
 
-
 const refreshAccessToken = async (refreshToken: string): Promise<string> => {
   const decoded = verifyToken(refreshToken) as jwt.JwtPayload & {
     userId: string;
   };
-  const user = await UserModel.findOne({ refreshToken });
+  const user = await User.findOne({ refreshToken });
 
   if (!user) {
     throw {

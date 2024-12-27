@@ -1,20 +1,62 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
+import bcrypt from 'bcrypt';
 import { Schema, model } from 'mongoose';
-import { IUser } from './user.interface';
+import { UserStatus } from './user.constant';
+import { TUser, UserModel } from './user.interface';
 
-const UserSchema: Schema = new Schema(
+const userSchema = new Schema<TUser, UserModel>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'user'], default: 'user' },
-    isBlocked: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    refreshToken: { type: String },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: 0,
+    },
+
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+    },
+    status: {
+      type: String,
+      enum: UserStatus,
+    },
+    refreshToken: {
+      type: String,
+      select: 0,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export default model<IUser>('User', UserSchema);
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return await User.findOne({ id }).select('+password');
+};
+
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
+  passwordChangedTimestamp: Date,
+  jwtIssuedTimestamp: number
+) {
+  const passwordChangedTime =
+    new Date(passwordChangedTimestamp).getTime() / 1000;
+  return passwordChangedTime > jwtIssuedTimestamp;
+};
+
+export const User = model<TUser, UserModel>('User', userSchema);

@@ -15,7 +15,4 @@ export const updateUserSchema = z.object({
       .min(6, 'Password must be at least 6 characters')
       .optional(),
   }),
-  params: z.object({
-    userId: z.string().min(1, 'User ID is required'),
-  }),
 });

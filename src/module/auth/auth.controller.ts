@@ -3,10 +3,10 @@ import { authService } from './auth.service';
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import { IUser } from '../user/user.interface';
+import { TUser } from '../user/user.interface';
 
 const register = catchAsync(async (req: Request, res: Response) => {
-  const user: IUser = req.body;
+  const user: TUser = req.body;
   const newUser = await authService.registerUser(user);
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,

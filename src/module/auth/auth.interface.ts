@@ -1,6 +1,6 @@
-import { IUser } from '../user/user.interface';
+import { TUser } from "../user/user.interface";
 
-export interface IAuth extends IUser {
+export interface IAuth extends TUser {
   accessToken: string;
   refreshToken: string;
 }
