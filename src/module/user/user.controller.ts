@@ -28,7 +28,7 @@ export const registerUser = async (req: Request, res: Response) => {
     statusCode: 201,
     message: 'User registered successfully',
     data: {
-      id: newUser.id,
+      id: newUser._id,
       email: newUser.email,
       name: newUser.name,
       role: newUser.role,
@@ -68,7 +68,7 @@ export const loginUser = async (req: Request, res: Response) => {
     data: {
       token,
       user: {
-        id: user.id,
+        id: user._id,
         email: user.email,
         name: user.name,
         role: user.role,
