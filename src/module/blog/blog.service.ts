@@ -1,5 +1,6 @@
 import BlogModel from './blog.model';
 import { IBlog } from './blog.interface';
+import { FilterQuery } from 'mongoose';
 
 const createBlog = async (blogData: IBlog): Promise<IBlog> => {
   const blog = await BlogModel.create(blogData);
@@ -21,14 +22,19 @@ const deleteBlog = async (blogId: string): Promise<any | null> => {
   return blog;
 };
 
-const getAllBlogs = async (filters: any): Promise<any[]> => {
-  const blogs = await BlogModel.find(filters).populate('author', 'name email');
-  return blogs;
+const getBlogs = async (
+  query: FilterQuery<IBlog>,
+  sort: Record<string, 1 | -1>
+): Promise<IBlog[]> => {
+  return BlogModel.find(query)
+    .sort(sort)
+    .populate('author', 'name email')
+    .exec();
 };
 
 export const blogService = {
   createBlog,
   updateBlog,
   deleteBlog,
-  getAllBlogs,
+  getBlogs,
 };

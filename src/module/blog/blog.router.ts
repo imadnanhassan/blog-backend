@@ -32,7 +32,7 @@ blogRouter.delete(
 blogRouter.get(
   '/',
   validateRequest(getAllBlogsSchema),
-  BlogController.getAllBlogs
+  BlogController.getBlogs
 );
 
 export default blogRouter;

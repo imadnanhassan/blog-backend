@@ -21,10 +21,8 @@ export const deleteBlogSchema = z.object({
 });
 
 export const getAllBlogsSchema = z.object({
-  query: z.object({
-    search: z.string().optional(),
-    sortBy: z.string().optional(),
-    sortOrder: z.enum(['asc', 'desc']).optional(),
-    filter: z.string().optional(),
-  }),
+  search: z.string().optional(),
+  sortBy: z.enum(['createdAt', 'title']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  author: z.string().optional(),
 });

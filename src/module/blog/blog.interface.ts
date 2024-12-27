@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-export interface IBlog {
- 
+export interface IBlog  {
   title: string;
   content: string;
   author: mongoose.Types.ObjectId;
-  // createdAt?: Date;
-  // updatedAt?: Date;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

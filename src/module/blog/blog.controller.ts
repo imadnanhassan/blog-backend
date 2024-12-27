@@ -4,15 +4,40 @@ import { blogService } from './blog.service';
 import sendResponse from '../../utils/sendResponse';
 import catchAsync from '../../utils/catchAsync';
 import { IBlog } from './blog.interface';
+import mongoose from 'mongoose';
+import {
+  buildBlogQuery,
+  buildBlogSort,
+} from '../../queryBuilder/blogQueryBuilder';
 
 const createBlog = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
-    const blogData: IBlog = { ...req.body};
-    const blog = await blogService.createBlog(blogData);
+    const { title, content } = req.body;
+    const authorId = req.user?._id;
+
+    if (!authorId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'User not authenticated',
+        statusCode: StatusCodes.UNAUTHORIZED,
+      });
+      return;
+    }
+
+    const blogData: IBlog = {
+      title,
+      content,
+      author: new mongoose.Types.ObjectId(authorId),
+      isPublished: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const result = await blogService.createBlog(blogData);
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
       message: 'Blog created successfully',
-      data: blog,
+      data: result,
     });
   }
 );
@@ -55,14 +80,19 @@ const deleteBlog = catchAsync(
   }
 );
 
-const getAllBlogs = catchAsync(
+const getBlogs = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
-    const filters = req.query;
-    const blogs = await blogService.getAllBlogs(filters);
+    const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc' | undefined;
+    const author = req.query.author as string;
+    const query = buildBlogQuery({ search, author });
+    const sort = buildBlogSort(sortBy, sortOrder);
+    const result = await blogService.getBlogs(query, sort);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       message: 'Blogs fetched successfully',
-      data: blogs,
+      data: result,
     });
   }
 );
@@ -71,5 +101,5 @@ export const BlogController = {
   createBlog,
   updateBlog,
   deleteBlog,
-  getAllBlogs,
+  getBlogs,
 };
