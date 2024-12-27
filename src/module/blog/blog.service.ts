@@ -1,3 +1,4 @@
+import { buildQuery } from '../../builder/queryBuilder';
 import { IBlog } from './blog.interface';
 import Blog from './blog.model';
 
@@ -45,10 +46,24 @@ const deleteBlog = async (blogId: string, userId: string) => {
 };
 
 
+const getAllBlogs = async (query: any) => {
+  const { conditions, sort } = buildQuery(query);
+
+  try {
+    const blogs = await Blog.find(conditions)
+      .sort(sort)
+      .populate('author', 'name email');
+    return blogs;
+  } catch (error) {
+    throw new Error('Error fetching blogs');
+  }
+};
+
 const BlogService = {
   createBlog,
   updateBlog,
   deleteBlog,
+  getAllBlogs,
 };
 
 export default BlogService;

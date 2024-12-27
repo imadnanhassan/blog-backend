@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import sendResponse from '../../utils/sendResponse';
 import BlogService from './blog.service';
 import Blog from './blog.model';
+import { buildQuery } from '../../builder/queryBuilder';
 
 const createBlog = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -125,10 +126,28 @@ const deleteBlog = async (req: Request, res: Response) => {
   }
 };
 
+const getAllBlogs = async (req: Request, res: Response) => {
+  try {
+    const blogs = await BlogService.getAllBlogs(req.query);
 
+    return sendResponse(res, {
+      statusCode: 200,
+      message: 'Blogs fetched successfully',
+      data: blogs,
+    });
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    return sendResponse(res, {
+      statusCode: 500,
+      message: 'Internal server error',
+      data: null,
+    });
+  }
+};
 
 export const BlogController = {
   createBlog,
   updateBlog,
   deleteBlog,
+  getAllBlogs,
 };
