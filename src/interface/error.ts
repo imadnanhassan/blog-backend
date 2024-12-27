@@ -1,10 +1,6 @@
-export type TErrorSources = {
-  path: string | number;
+export interface TErrorSource {
+  path: string;
   message: string;
-}[];
+}
 
-export type TGenericErrorResponse = {
-  statusCode: number;
-  message: string;
-  errorSources: TErrorSources;
-};
+export type TErrorSources = TErrorSource[];

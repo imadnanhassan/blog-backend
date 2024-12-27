@@ -1,16 +1,17 @@
 import express, { Application, Request, Response } from 'express';
-import globalErrorHandler from './middleware/globalErrorHandler';
-import authRouter from './module/auth/auth.router';
+import Userrouter from './module/user/user.routes';
+import globalErrorHandler from './middleware/globalErrorhandler';
 
 const app: Application = express();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(globalErrorHandler);
 
 // applocation routes
-app.use('/api/auth', authRouter);
+app.use('/api/auth', Userrouter);
 // app.use('/api/admin', userRouter);
 // app.use('/api/blogs', blogRouter);
 // Simple Routes

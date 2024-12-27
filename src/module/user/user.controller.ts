@@ -1,110 +1,78 @@
-import { Request, Response, NextFunction } from 'express';
-import { StatusCodes } from 'http-status-codes';
+// src/controllers/user.controller.ts
+import { Request, Response } from 'express';
 import sendResponse from '../../utils/sendResponse';
-import UserModel from './user.model';
-import bcrypt from 'bcrypt';
+import {
+  createUser,
+  findUserByEmail,
+  generateToken,
+  verifyPassword,
+} from './user.service';
 
-// const blockUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<void> => {
-//   try {
-//     const { userId } = req.params;
-//     const user = await UserModel.findByIdAndUpdate(
-//       userId,
-//       { isBlocked: true },
-//       { new: true }
-//     );
+export const registerUser = async (req: Request, res: Response) => {
+  const { email, password, name, role } = req.body;
 
-//     if (!user) {
-//        res.status(StatusCodes.NOT_FOUND).json({
-//         success: false,
-//         message: 'User not found',
-//         statusCode: StatusCodes.NOT_FOUND,
-//        });
-//       return;
-//     }
+  // Check if user already exists
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) {
+    return sendResponse(res, {
+      statusCode: 400,
+      message: 'User already exists',
+      data: null,
+    });
+  }
 
-//     sendResponse(res, {
-//       statusCode: StatusCodes.OK,
-//       message: 'User blocked successfully',
-//       data: user,
-//     });
-//   } catch (error) {
-//     next(error); // Pass error to global error handler
-//   }
-// };
+  // Create a new user
+  const newUser = await createUser(email, password, name, role);
 
+  return sendResponse(res, {
+    statusCode: 201,
+    message: 'User registered successfully',
+    data: {
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role,
+    },
+  });
+};
 
+export const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
 
-const blockUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const user = await UserModel.findByIdAndUpdate(
-    id,
-    { isBlocked: true },
-    { new: true }
-  );
-
+  // Check if user exists
+  const user = await findUserByEmail(email);
   if (!user) {
-    return res.status(404).json({ message: 'User not found.' });
+    return sendResponse(res, {
+      statusCode: 400,
+      message: 'Invalid email or password',
+      data: null,
+    });
   }
 
-  res.status(200).json({
-    message: 'User blocked successfully.',
-  });
-};
-
-const createAdmin = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newAdmin = new UserModel({
-    name,
-    email,
-    password: hashedPassword,
-    role: 'admin',
-    isBlocked: false,
-    createdAt: new Date(),
-  });
-
-  await newAdmin.save();
-
-  res.status(201).json({ message: 'Admin created successfully' });
-};
-
-
-
-
-const updateUser = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
-  try {
-    const { userId } = req.params;
-    const user = await UserModel.findByIdAndUpdate(userId, req.body, {
-      new: true,
+  // Verify the password
+  const isPasswordValid = await verifyPassword(password, user.password);
+  if (!isPasswordValid) {
+    return sendResponse(res, {
+      statusCode: 400,
+      message: 'Invalid email or password',
+      data: null,
     });
-
-    if (!user) {
-       res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: 'User not found',
-        statusCode: StatusCodes.NOT_FOUND,
-       });
-      return;
-    }
-
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      message: 'User updated successfully',
-      data: user,
-    });
-  } catch (error) {
-    next(error); // Pass error to global error handler
   }
-};
 
-export const UserController = {
-  blockUser,
-  updateUser,
+  // Generate a JWT token
+  const token = generateToken(user);
+
+  return sendResponse(res, {
+    statusCode: 200,
+    message: 'Login successful',
+    data: {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    },
+  });
 };
