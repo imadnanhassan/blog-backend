@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import sendResponse from '../../utils/sendResponse';
 import BlogService from './blog.service';
+import Blog from './blog.model';
 
-export const createBlog = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+const createBlog = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, content } = req.body;
 
@@ -35,6 +33,102 @@ export const createBlog = async (
   }
 };
 
+const updateBlog = async (req: Request, res: Response) => {
+  try {
+    const { id: blogId } = req.params;
+    const { title, content } = req.body;
+
+    if (!req.user) {
+      return sendResponse(res, {
+        statusCode: 401,
+        message: 'Unauthorized: User not authenticated',
+        data: null,
+      });
+    }
+
+    const userId = req.user.id;
+    const updatedBlog = await BlogService.updateBlog(blogId, userId, {
+      title,
+      content,
+    });
+
+    if (!updatedBlog) {
+      return sendResponse(res, {
+        statusCode: 404,
+        message: 'Blog not found or unauthorized',
+        data: null,
+      });
+    }
+
+    return sendResponse(res, {
+      statusCode: 200,
+      message: 'Blog updated successfully',
+      data: updatedBlog,
+    });
+  } catch (error) {
+    console.error('Error in updateBlogController:', error);
+    return sendResponse(res, {
+      statusCode: 500,
+      message: 'Internal server error',
+      data: null,
+    });
+  }
+};
+
+const deleteBlog = async (req: Request, res: Response) => {
+  try {
+    const { id: blogId } = req.params;
+
+    if (!req.user) {
+      return sendResponse(res, {
+        statusCode: 401,
+        message: 'Unauthorized',
+        data: null,
+      });
+    }
+
+    const userId = req.user.id;
+
+    const blog = await Blog.findById(blogId);
+
+    if (!blog) {
+      return sendResponse(res, {
+        statusCode: 404,
+        message: 'Blog not found',
+        data: null,
+      });
+    }
+
+    if (blog.author.toString() !== userId) {
+      return sendResponse(res, {
+        statusCode: 403,
+        message: 'Forbidden: You do not have permission to delete this blog',
+        data: null,
+      });
+    }
+
+    await Blog.findByIdAndDelete(blogId);
+
+    return sendResponse(res, {
+      statusCode: 200,
+      message: 'Blog deleted successfully',
+      data: null,
+    });
+  } catch (error) {
+    console.error('Error in deleteBlog controller:', error);
+
+    return sendResponse(res, {
+      statusCode: 500,
+      message: 'Internal server error',
+      data: null,
+    });
+  }
+};
+
+
+
 export const BlogController = {
   createBlog,
+  updateBlog,
+  deleteBlog,
 };

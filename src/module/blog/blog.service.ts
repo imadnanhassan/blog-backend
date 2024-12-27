@@ -1,7 +1,7 @@
 import { IBlog } from './blog.interface';
 import Blog from './blog.model';
 
-export const createBlog = async (
+const createBlog = async (
   title: string,
   content: string,
   authorId: string
@@ -19,31 +19,36 @@ export const createBlog = async (
   return populatedBlog;
 };
 
-const getBlogsToDb = async (): Promise<IBlog[]> => {
-  return await Blog.find().populate('author', 'name email');
+const updateBlog = async (
+  blogId: string,
+  userId: string,
+  updatedData: { title?: string; content?: string }
+) => {
+  console.log('UpdateBlog Debug:', { blogId, userId, updatedData });
+
+  const result = await Blog.findOneAndUpdate(
+    { _id: blogId, author: userId }, 
+    { $set: updatedData }, 
+    { new: true } 
+  ).populate('author', 'name email');
+
+  if (!result) {
+    console.log('Blog not found or unauthorized');
+  }
+
+  return result;
 };
 
-const getBlogByIdToDb = async (id: string): Promise<IBlog | null> => {
-  return await Blog.findById(id).populate('author', 'name email');
+const deleteBlog = async (blogId: string, userId: string) => {
+  const blog = await Blog.findOneAndDelete({ _id: blogId, author: userId });
+  return blog ? true : false;
 };
 
-const updateBlogToDb = async (
-  id: string,
-  data: Partial<IBlog>
-): Promise<IBlog | null> => {
-  return await Blog.findByIdAndUpdate(id, data, { new: true });
-};
-
-const deleteBlogToDb = async (id: string): Promise<IBlog | null> => {
-  return await Blog.findByIdAndDelete(id);
-};
 
 const BlogService = {
   createBlog,
-  getBlogByIdToDb,
-  updateBlogToDb,
-  deleteBlogToDb,
-  getBlogsToDb,
+  updateBlog,
+  deleteBlog,
 };
 
 export default BlogService;
