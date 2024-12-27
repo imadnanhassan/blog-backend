@@ -32,9 +32,11 @@ export const verifyPassword = async (
 
 // Function to generate a JWT token for the user
 export const generateToken = (user: IUser): string => {
-  return jwt.sign({ id: user._id }, config.secret_key || 'adnan_hassan', {
-    expiresIn: '10days',
+  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'adnan_hassan', {
+    expiresIn: '10d',
   });
 };
+
+
 
 

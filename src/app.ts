@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import Userrouter from './module/user/user.routes';
-import globalErrorHandler from './middleware/globalErrorhandler';
+import blogRouter from './module/blog/blog.routes';
+import globalErrorHandler from './middleware/globalErrorHandler';
 
 const app: Application = express();
 
@@ -13,7 +14,7 @@ app.use(globalErrorHandler);
 // applocation routes
 app.use('/api/auth', Userrouter);
 // app.use('/api/admin', userRouter);
-// app.use('/api/blogs', blogRouter);
+app.use('/api/blogs', blogRouter);
 // Simple Routes
 app.get('/', (req: Request, res: Response) => {
   res.send({
