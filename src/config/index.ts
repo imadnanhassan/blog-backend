@@ -9,4 +9,5 @@ export default {
   secret_key: process.env.SECRET_KEY,
   expiresIn: process.env.JWT_EXPIRATION,
   NODE_ENV: process.env.NODE_ENV,
+  admin_password: process.env.ADMIN_PASSWORD,
 };

@@ -8,6 +8,7 @@ import {
   verifyPassword,
 } from './user.service';
 
+
 export const registerUser = async (req: Request, res: Response) => {
   const { email, password, name, role } = req.body;
 
@@ -76,3 +77,5 @@ export const loginUser = async (req: Request, res: Response) => {
     },
   });
 };
+
+
