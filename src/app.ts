@@ -13,7 +13,6 @@ app.use(globalErrorHandler);
 
 // applocation routes
 app.use('/api/auth', Userrouter);
-// app.use('/api/admin', userRouter);
 app.use('/api/blogs', blogRouter);
 // Simple Routes
 app.get('/', (req: Request, res: Response) => {

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './config';
 import { Server } from 'http';
-import seedSuperAdmin from './DB';
+import { seedSuperAdmin } from './DB';
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,17 +23,17 @@ let server: Server;
   }
 })();
 
-process.on('unhandledRejection', (err) => {
-  console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  }
-  process.exit(1);
-});
+// process.on('unhandledRejection', (err) => {
+//   console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
+//   if (server) {
+//     server.close(() => {
+//       process.exit(1);
+//     });
+//   }
+//   process.exit(1);
+// });
 
-process.on('uncaughtException', () => {
-  console.log(`😈 uncaughtException is detected , shutting down ...`);
-  process.exit(1);
-});
+// process.on('uncaughtException', () => {
+//   console.log(`😈 uncaughtException is detected , shutting down ...`);
+//   process.exit(1);
+// });

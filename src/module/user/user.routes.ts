@@ -1,6 +1,6 @@
 // src/routes/user.routes.ts
 import express from 'express';
-import { loginUser, registerUser } from './user.controller';
+import { adminLogin, loginUser, registerUser } from './user.controller';
 import { userLoginSchema, userRegisterSchema } from './userValidation';
 import { validate } from '../../middleware/validate';
 
@@ -10,6 +10,6 @@ const Userrouter = express.Router();
 Userrouter.post('/register', validate(userRegisterSchema), registerUser);
 
 // Route for user login
-Userrouter.post('/login', validate(userLoginSchema), loginUser);
+Userrouter.post('/login', adminLogin, validate(userLoginSchema), loginUser);
 
 export default Userrouter;

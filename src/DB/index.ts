@@ -1,29 +1,22 @@
 import bcrypt from 'bcryptjs';
 import User from '../module/user/user.model';
-import { USER_ROLE } from '../module/user/user.constant';
 
-const seedSuperAdmin = async () => {
-  try {
-    const isSuperAdminExists = await User.findOne({ role: USER_ROLE.admin });
-    if (!isSuperAdminExists) {
+export const seedSuperAdmin = async () => {
+  const admin = await User.findOne({ email: 'adnanhassan@gmail.com' });
+
+  if (!admin) {
       const hashedPassword = await bcrypt.hash('admin123', 10);
+    
+    const newAdmin = new User({
+      email: 'adnanhassan@gmail.com',
+      name: 'Adnan Hassan',
+      password: 'admin123',
+      role: 'admin',
+    });
 
-      const adminUser = {
-        id: '0001',
-        name: 'Adnan Hassan',
-        email: 'adnanhassan@gmail.com',
-        password: hashedPassword,
-        role: USER_ROLE.admin,
-      };
-
-      await User.create(adminUser);
-      console.log('Admin seeded successfully.');
-    } else {
-      console.log('Admin already exists.');
-    }
-  } catch (error) {
-    console.error('Error seeding admin:', error);
+    await newAdmin.save();
+    console.log('Admin er data paisi!');
+  } else {
+    console.log('Super admin already exists!');
   }
 };
-
-export default seedSuperAdmin;

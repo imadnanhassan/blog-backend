@@ -17,26 +17,19 @@ export const createUser = async (
   return user;
 };
 
-// Function to find a user by email
-export const findUserByEmail = async (email: string): Promise<IUser | null> => {
-  return await User.findOne({ email });
+export const findUserByEmail = async (email: string) => {
+  const user = await User.findOne({ email });
+  console.log('User fetched:', user);
+  return user;
 };
-
-// Function to verify a user's password
 export const verifyPassword = async (
-  password: string,
-  hashedPassword: string
-): Promise<boolean> => {
-  return await bcrypt.compare(password, hashedPassword);
+  enteredPassword: string,
+  storedPassword: string
+) => {
+  return await bcrypt.compare(enteredPassword, storedPassword);
 };
-
-// Function to generate a JWT token for the user
-export const generateToken = (user: IUser): string => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'adnan_hassan', {
-    expiresIn: '10d',
+export const generateToken = (user: any) => {
+  return jwt.sign({ userId: user._id, role: user.role }, 'blog_backend', {
+    expiresIn: '1h',
   });
 };
-
-
-
-

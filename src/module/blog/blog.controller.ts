@@ -38,6 +38,17 @@ const updateBlog = async (req: Request, res: Response) => {
   try {
     const { id: blogId } = req.params;
     const { title, content } = req.body;
+    const updates = req.body;
+
+    const blog = await Blog.findByIdAndUpdate(blogId, updates, { new: true });
+
+    if (!blog) {
+      return sendResponse(res, {
+        statusCode: 404,
+        message: 'Blog not found',
+        data: null,
+      });
+    }
 
     if (!req.user) {
       return sendResponse(res, {
@@ -90,8 +101,7 @@ const deleteBlog = async (req: Request, res: Response) => {
 
     const userId = req.user.id;
 
-    const blog = await Blog.findById(blogId);
-
+    const blog = await Blog.findByIdAndDelete(blogId);
     if (!blog) {
       return sendResponse(res, {
         statusCode: 404,
@@ -107,8 +117,6 @@ const deleteBlog = async (req: Request, res: Response) => {
         data: null,
       });
     }
-
-    await Blog.findByIdAndDelete(blogId);
 
     return sendResponse(res, {
       statusCode: 200,
